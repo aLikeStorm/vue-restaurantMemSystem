@@ -5,11 +5,7 @@
     <el-container>
       <!--  导航栏  -->
       <el-aside>
-        <el-menu class="el-menu-vertical-demo"
-            @select="select"
-            background-color="#545c64"
-            text-color="#fff"
-            active-text-color="#ffd04b">
+        <el-menu class="el-menu-vertical-demo" default-active="1" @select="select" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
           <el-menu-item index="1">
             <i class="el-icon-user"></i>
             <span slot="title">员工管理</span>
@@ -34,9 +30,7 @@
       </el-aside>
       <!--  主体  -->
       <el-main>
-        <el-card class="box-card">
-          <router-view></router-view>
-        </el-card>
+        <router-view></router-view>
       </el-main>
     </el-container>
   </el-container>
@@ -85,10 +79,6 @@ export default {
   .el-main {
     background-color: #E9EEF3;
     height: 100%;
-
-    .box-card{
-      height: 99%;
-    }
   }
 }
 </style>

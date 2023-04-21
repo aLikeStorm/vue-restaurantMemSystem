@@ -14,7 +14,9 @@ const routes = [
   // 登录页面
   {path: '/login', name: 'login', component: () => import('../views/Login/index')},
   // 主页
-  {path: '/homepage', name: 'homepage', component: () => import('../views/Homepage/index'), children: [
+  {path: '/homepage', component: () => import('../views/Homepage/index'), children: [
+      // 重定向
+      {path: '/', redirect:'personManage'},
       // 人员管理
       {path: 'personManage', name: 'personManage', component: () => import('../components/personManage/index')},
       // 分类管理
