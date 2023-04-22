@@ -18,7 +18,7 @@
           <el-table-column prop="name" label="员工姓名"></el-table-column>
           <el-table-column prop="count" label="账号"></el-table-column>
           <el-table-column prop="phone" label="手机号"></el-table-column>
-          <el-table-column label="操作">
+          <el-table-column label="操作" width="200">
             <template slot-scope="scope">
               <el-button type="text" @click="doEdit(scope.row)">编辑</el-button>
               <el-button type="text" @click="doForbidden(scope.row)">禁用</el-button>

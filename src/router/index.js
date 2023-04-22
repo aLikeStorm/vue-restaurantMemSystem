@@ -36,4 +36,21 @@ const router = new VueRouter({
   routes
 })
 
+// 全局路由
+router.beforeEach((to, from, next) => {
+    if (to.path !== '/login') {
+
+        const userInfo = localStorage.getItem('userInfo')
+        if (userInfo) {
+            next()
+        } else {
+            next('/login')
+        }
+
+    } else {
+        console.log(111)
+        next()
+    }
+})
+
 export default router

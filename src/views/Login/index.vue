@@ -19,7 +19,6 @@
 </template>
 
 <script>
-import baseUrl from '../../../public/global.js'
 export default {
   name: "login",
   data(){
@@ -37,13 +36,34 @@ export default {
           type: 'warning',
           center: 'true'
         });
+        return
       }
-      // this.$http.post(baseUrl + 'loginController/login', {username: this.username, password: this.password}).then(res=>{
-      //   console.log(res)
-      // })
-      if (this.username === '1' && this.password === '2') {
-        this.$router.push('/homepage')
-      }
+      this.$http.post('employee/login', {username: this.username, password: this.password}).then(res=>{
+        if(res.status === 200){
+          if(!res.data.data){
+            this.$message({
+              message: res.data.msg,
+              type: 'error',
+              center: 'true'
+            });
+          } else {
+            let userInfo = JSON.stringify(res.data.data)
+            localStorage.setItem('userInfo', userInfo)
+            this.$router.push('/homepage')
+            this.$message({
+              message: '登录成功',
+              type: 'success',
+              center: 'true'
+            });
+          }
+        } else {
+          this.$message({
+            message: '系统错误，联系管理员',
+            type: 'error',
+            center: 'true'
+          });
+        }
+      })
     }
   }
 }

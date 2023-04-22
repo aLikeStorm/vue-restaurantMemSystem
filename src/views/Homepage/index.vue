@@ -1,7 +1,15 @@
 <template>
   <el-container>
     <!--  头部  -->
-    <el-header></el-header>
+    <el-header>
+      <div class="left">
+        <img src="./img/homepage-1.png"  alt="logo"/>
+      </div>
+      <div class="right">
+        <span>你好,{{userInfo.name}}</span>
+        <i class="el-icon-switch-button" @click="exit"></i>
+      </div>
+    </el-header>
     <el-container>
       <!--  导航栏  -->
       <el-aside>
@@ -39,6 +47,14 @@
 <script>
 export default {
   name: "homepage",
+  data(){
+    return {
+      userInfo: {}
+    }
+  },
+  created() {
+    this.userInfo = JSON.parse(localStorage.getItem('userInfo'))
+  },
   methods: {
     select(index) {
       if(index === '1'){
@@ -52,6 +68,25 @@ export default {
       } else if (index === '5') {
         this.$router.push('/homepage/orderManage')
       }
+    },
+    exit(){
+      this.$router.push('/')
+      this.$http.post('employee/logout').then(res=>{
+        if(res.status === 200){
+          this.$message({
+            message: res.data.data,
+            type: 'success',
+            center: 'true'
+          });
+        }else {
+          this.$message({
+            message: '系统错误，联系管理员',
+            type: 'error',
+            center: 'true'
+          });
+        }
+      })
+      localStorage.removeItem('userInfo')
     }
   }
 }
@@ -62,8 +97,32 @@ export default {
   height: 100%;
 
   .el-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     background-color: #B3C0D1;
     height: 20%;
+
+    .left{
+      height: 70%;
+      img{
+        height: 100%;
+      }
+    }
+
+    .right{
+
+      span{
+        font-size: 25px;
+        margin-right: 20px;
+      }
+
+      i{
+        font-size: 30px;
+        cursor: pointer;
+      }
+    }
+
   }
 
   .el-aside{
