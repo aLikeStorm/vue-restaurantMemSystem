@@ -12,16 +12,24 @@
       </el-form>
     </el-card>
     <el-card class="bottom-card">
-      <el-button icon="el-icon-plus" type="primary" @click="doAdd" size="small">新增</el-button>
+      <el-button v-if="userInfo.id === '1'" icon="el-icon-plus" type="primary" @click="doAdd" size="small">新增</el-button>
       <div class="table_area">
         <el-table :data="tableData" stripe height="600" style="width: 100%" :header-cell-style="{'text-align':'center'}" :cell-style="{'text-align':'center'}" border>
           <el-table-column prop="name" label="员工姓名"></el-table-column>
-          <el-table-column prop="count" label="账号"></el-table-column>
+          <el-table-column prop="username" label="账号"></el-table-column>
           <el-table-column prop="phone" label="手机号"></el-table-column>
+          <el-table-column label="状态">
+            <template slot-scope="scope">
+              {{scope.row.status === 1 ? "正常" : "禁用"}}
+            </template>
+          </el-table-column>
           <el-table-column label="操作" width="200">
             <template slot-scope="scope">
               <el-button type="text" @click="doEdit(scope.row)">编辑</el-button>
-              <el-button type="text" @click="doForbidden(scope.row)">禁用</el-button>
+              <template v-if="userInfo.id === '1'">
+                <el-button type="text" v-if="scope.row.status === 0" @click="statusChange(scope.row)">启用</el-button>
+                <el-button type="text" v-if="scope.row.status === 1" @click="statusChange(scope.row)">禁用</el-button>
+              </template>
             </template>
           </el-table-column>
         </el-table>
@@ -43,13 +51,13 @@
             <td class="td-left">员工姓名</td>
             <td class=td-right>
               <el-form-item prop="name" :rules="{ required: true, message: '请输入员工姓名', trigger: 'blur' }">
-                <el-input v-model="editForm.name" size="small"></el-input>
+                <el-input v-model="editForm.name" size="small" placeholder="请输入"></el-input>
               </el-form-item>
             </td>
             <td class="td-left">账号</td>
             <td class=td-right>
-              <el-form-item prop="count" :rules="{ required: true, message: '请输入账号', trigger: 'blur' }">
-                <el-input v-model="editForm.count" size="small"></el-input>
+              <el-form-item prop="username" :rules="{ required: true, message: '请输入账号', trigger: 'blur' }">
+                <el-input v-model="editForm.username" size="small" placeholder="请输入"></el-input>
               </el-form-item>
             </td>
           </tr>
@@ -57,11 +65,25 @@
             <td class="td-left">手机号</td>
             <td class=td-right>
               <el-form-item prop="phone" :rules="{ required: true, message: '请输入手机号', trigger: 'blur' }">
-                <el-input v-model="editForm.phone" size="small"></el-input>
+                <el-input v-model="editForm.phone" size="small" placeholder="请输入"></el-input>
               </el-form-item>
             </td>
-            <td class="td-left"></td>
-            <td class=td-right></td>
+            <td class="td-left">性别</td>
+            <td class=td-right>
+              <el-form-item prop="sex" :rules="{ required: true, message: '请选择性别', trigger: 'change' }">
+                <el-select v-model="editForm.sex" placeholder="请选择">
+                  <el-option v-for="item in sexOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
+              </el-form-item>
+            </td>
+          </tr>
+          <tr>
+            <td class="td-left">身份证号</td>
+            <td class=td-right colspan="3">
+              <el-form-item prop="idNumber" :rules="{ required: true, message: '请输入身份证号', trigger: 'blur' }">
+                <el-input v-model="editForm.idNumber" size="small" placeholder="请输入"></el-input>
+              </el-form-item>
+            </td>
           </tr>
         </table>
       </el-form>
@@ -79,18 +101,30 @@ export default {
   data(){
     return {
       searchForm: {},
-      tableData: [
-        {name: '张三', count: '17777777777', phone: '17777777777'},
-      ],
+      tableData: [],
       editDialog: false,
       title: '',
       editForm: {},
+      sexOptions:[
+        {label: '男', value: '1'},
+        {label: '女', value: '0'}
+      ],
       currentPage: 1,
       pageSize: 10,
+      userInfo: JSON.parse(localStorage.getItem('userInfo'))
     }
   },
+  created() {
+    this.doSearch()
+  },
   methods:{
-    doSearch(){},
+    doSearch(){
+      this.$http.get(`/employee/getEmployeeList?name=${this.searchForm.name ? this.searchForm.name : ''}&currentPage=${this.currentPage}&pageSize=${this.pageSize}`).then(res => {
+        if (res.status === 200) {
+          this.tableData = res.data.data.records
+        }
+      })
+    },
     doClear(){
       this.searchForm = {}
       this.doSearch()
@@ -108,13 +142,72 @@ export default {
       this.editDialog = true
       this.editForm = Object.assign({}, row)
     },
-    doForbidden(row){},
+    statusChange(row){
+      if (row.status === 1){
+        row.status = 0
+      } else {
+        row.status = 1
+      }
+      this.$http.post('/employee/update', row).then(res => {
+        if(res.status === 200){
+          if (res.data.code === 1){
+            this.$message({
+              message: res.data.data,
+              type: 'success',
+              center: 'true'
+            });
+            this.editDialog = false
+            this.doSearch()
+          } else {
+            this.$message({
+              message: res.data.msg,
+              type: 'error',
+              center: 'true'
+            });
+          }
+        } else {
+          this.$message({
+            message: '系统错误，联系管理员',
+            type: 'error',
+            center: 'true'
+          });
+        }
+      })
+    },
     save(){
       this.$refs.editForm.validate((valid) => {
         if (valid) {
-          this.editDialog = false
-        } else {
-          this.editDialog = false
+          let url = ''
+          if (this.title === '新增') {
+            url = '/employee/register'
+          } else {
+            url = '/employee/update'
+          }
+          this.$http.post(url, this.editForm).then(res => {
+            if(res.status === 200){
+              if (res.data.code === 1){
+                this.$message({
+                  message: res.data.data,
+                  type: 'success',
+                  center: 'true'
+                });
+                this.editDialog = false
+                this.doSearch()
+              } else {
+                this.$message({
+                  message: res.data.msg,
+                  type: 'error',
+                  center: 'true'
+                });
+              }
+            } else {
+              this.$message({
+                message: '系统错误，联系管理员',
+                type: 'error',
+                center: 'true'
+              });
+            }
+          })
         }
       });
     },
@@ -123,9 +216,11 @@ export default {
     },
     handleSizeChange(val) {
       this.pageSize = val
+      this.doSearch()
     },
     handleCurrentChange(val) {
       this.currentPage = val
+      this.doSearch()
     }
   }
 }
