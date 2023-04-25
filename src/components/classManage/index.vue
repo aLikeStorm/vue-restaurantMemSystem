@@ -104,9 +104,7 @@ export default {
       this.editForm = Object.assign({}, row)
     },
     doDelete(row){
-      let target = Object.assign({} , row)
-      target.isDeleted = 1
-      this.$http.post('/category/update', target).then(res => {
+      this.$http.post('/category/delete', row).then(res => {
         if(res.status === 200){
           if (res.data.code === 1){
             this.$message({
