@@ -207,6 +207,8 @@ export default {
       this.title = '新增'
       this.editDialog = true
       this.editForm = {}
+      this.dishFlavours = []
+      this.imageUrl = ''
       this.$nextTick(()=>{
         this.$refs.editForm.clearValidate()
       })
@@ -217,9 +219,14 @@ export default {
         if (valid) {
           let url = ''
           if (this.title === '新增') {
-            url = '/employee/register'
+            url = '/dish/add'
+            this.editForm.status = 1
+            // this.editForm.flavors = this.dishFlavours.concat()
+            // for (let flavorsKey in this.editForm.flavors) {
+            //   this.editForm.flavors[flavorsKey].value = JSON.stringify(this.editForm.flavors[flavorsKey].value)
+            // }
           } else {
-            url = '/employee/update'
+            url = '/dish/update'
           }
           this.$http.post(url, this.editForm).then(res => {
             if(res.status === 200){
