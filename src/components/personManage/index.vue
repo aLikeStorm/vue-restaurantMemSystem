@@ -41,7 +41,7 @@
           :page-sizes="[5, 10, 15, 20]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="tableData.length">
+          :total="total">
       </el-pagination>
     </el-card>
     <el-dialog :title="title" :visible.sync="editDialog" width="80%">
@@ -102,6 +102,7 @@ export default {
     return {
       searchForm: {},
       tableData: [],
+      total: 0,
       editDialog: false,
       title: '',
       editForm: {},
@@ -122,6 +123,7 @@ export default {
       this.$http.get(`/employee/getEmployeeList?name=${this.searchForm.name ? this.searchForm.name : ''}&currentPage=${this.currentPage}&pageSize=${this.pageSize}`).then(res => {
         if (res.status === 200) {
           this.tableData = res.data.data.records
+          this.total = res.data.data.total
         }
       })
     },

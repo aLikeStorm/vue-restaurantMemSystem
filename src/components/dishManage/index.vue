@@ -16,10 +16,23 @@
       <div class="table_area">
         <el-table :data="tableData" stripe height="600" style="width: 100%" :header-cell-style="{'text-align':'center'}" :cell-style="{'text-align':'center'}" border>
           <el-table-column prop="name" label="菜品名称"></el-table-column>
-          <el-table-column prop="image" label="图片"></el-table-column>
-          <el-table-column prop="category" label="菜品分类"></el-table-column>
+          <el-table-column label="图片">
+            <template slot-scope="scope">
+              <el-image style="width: 50px; height: 50px" :src="'/common/download?name=' + scope.row.image" :preview-src-list="['/common/download?name=' + scope.row.image]">
+              </el-image>
+            </template>
+          </el-table-column>
+          <el-table-column label="菜品分类">
+            <template slot-scope="scope">
+              {{getName(scope.row.categoryId, categoryOptions)}}
+            </template>
+          </el-table-column>
           <el-table-column prop="price" label="售价"></el-table-column>
-          <el-table-column prop="status" label="售卖状态"></el-table-column>
+          <el-table-column label="售卖状态">
+            <template slot-scope="scope">
+              {{scope.row.status === 1 ? '在售' : '停售'}}
+            </template>
+          </el-table-column>
           <el-table-column prop="updateTime" label="最后操作时间"></el-table-column>
           <el-table-column label="操作" width="200">
             <template slot-scope="scope">
@@ -35,7 +48,7 @@
           :page-sizes="[5, 10, 15, 20]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="tableData.length">
+          :total="total">
       </el-pagination>
     </el-card>
     <el-dialog :title="title" :visible.sync="editDialog" width="80%">
@@ -181,6 +194,7 @@ export default {
       userInfo: JSON.parse(localStorage.getItem('userInfo')),
       searchForm: {},
       tableData: [],
+      total: 0,
       currentPage: 1,
       pageSize: 10,
       title: '',
@@ -199,10 +213,21 @@ export default {
       }
     })// 口味临时数据
     this.getFlavorListHand()
+    this.doSearch()
   },
   methods:{
-    doSearch(){},
-    doClear(){},
+    doSearch(){
+      this.$http.get(`/dish/getDishList?name=${this.searchForm.name ? this.searchForm.name : ''}&currentPage=${this.currentPage}&pageSize=${this.pageSize}`).then(res => {
+        if (res.status === 200) {
+          this.tableData = res.data.data.records
+          this.total = res.data.data.total
+        }
+      })
+    },
+    doClear(){
+      this.searchForm.name = ''
+      this.doSearch()
+    },
     doAdd(){
       this.title = '新增'
       this.editDialog = true
@@ -213,7 +238,12 @@ export default {
         this.$refs.editForm.clearValidate()
       })
     },
-    doEdit(){},
+    doEdit(row){
+      this.title = '更新'
+      this.editDialog = true
+      this.editForm = Object.assign({}, row)
+      this.imageUrl = '/common/download?name=' + this.editForm.image
+    },
     save(){
       this.$refs.editForm.validate((valid) => {
         if (valid) {
@@ -221,10 +251,10 @@ export default {
           if (this.title === '新增') {
             url = '/dish/add'
             this.editForm.status = 1
-            // this.editForm.flavors = this.dishFlavours.concat()
-            // for (let flavorsKey in this.editForm.flavors) {
-            //   this.editForm.flavors[flavorsKey].value = JSON.stringify(this.editForm.flavors[flavorsKey].value)
-            // }
+            this.editForm.flavors = this.dishFlavours.concat()
+            for (let flavorsKey in this.editForm.flavors) {
+              this.editForm.flavors[flavorsKey].value = JSON.stringify(this.editForm.flavors[flavorsKey].value)
+            }
           } else {
             url = '/dish/update'
           }
@@ -270,6 +300,13 @@ export default {
     handleAvatarSuccess(res, file){
       this.editForm.image = res.data
       this.imageUrl = '/common/download?name=' + res.data
+    },
+    getName(id, options){
+      for (let i = 0; i < options.length; i++) {
+        if (options[i].id === id) {
+          return options[i].name
+        }
+      }
     },
     // 按钮 - 添加口味
     addFlavour () {

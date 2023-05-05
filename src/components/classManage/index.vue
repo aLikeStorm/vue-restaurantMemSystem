@@ -23,7 +23,7 @@
           :page-sizes="[5, 10, 15, 20]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="tableData.length">
+          :total="total">
       </el-pagination>
     </el-card>
     <el-dialog :title="title" :visible.sync="editDialog" width="80%">
@@ -72,6 +72,7 @@ export default {
     return {
       typeOptions: [{label: '菜品分类', value: 1}, {label: '套餐分类', value: 2}],
       tableData: [],
+      total: 0,
       title: '',
       editDialog: false,
       editForm: {},
@@ -87,6 +88,7 @@ export default {
       this.$http.get(`/category/getCategoryList?currentPage=${this.currentPage}&pageSize=${this.pageSize}`).then(res => {
         if (res.status === 200) {
           this.tableData = res.data.data.records
+          this.total = res.data.data.total
         }
       })
     },
