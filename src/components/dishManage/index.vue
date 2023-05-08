@@ -22,11 +22,7 @@
               </el-image>
             </template>
           </el-table-column>
-          <el-table-column label="菜品分类">
-            <template slot-scope="scope">
-              {{getName(scope.row.categoryId, categoryOptions)}}
-            </template>
-          </el-table-column>
+          <el-table-column prop="categoryName" label="菜品分类"></el-table-column>
           <el-table-column prop="price" label="售价"></el-table-column>
           <el-table-column label="售卖状态">
             <template slot-scope="scope">
@@ -211,7 +207,8 @@ export default {
       if (res.status === 200) {
         this.categoryOptions = res.data.data
       }
-    })// 口味临时数据
+    })
+    // 口味临时数据
     this.getFlavorListHand()
     this.doSearch()
   },
@@ -243,6 +240,10 @@ export default {
       this.editDialog = true
       this.editForm = Object.assign({}, row)
       this.imageUrl = '/common/download?name=' + this.editForm.image
+      this.dishFlavours = this.editForm.flavors
+      for (let flavorsKey in this.dishFlavours) {
+        this.dishFlavours[flavorsKey].value = JSON.parse(this.dishFlavours[flavorsKey].value)
+      }
     },
     save(){
       this.$refs.editForm.validate((valid) => {
@@ -251,7 +252,7 @@ export default {
           if (this.title === '新增') {
             url = '/dish/add'
             this.editForm.status = 1
-            this.editForm.flavors = this.dishFlavours.concat()
+            this.editForm.flavors = this.dishFlavours
             for (let flavorsKey in this.editForm.flavors) {
               this.editForm.flavors[flavorsKey].value = JSON.stringify(this.editForm.flavors[flavorsKey].value)
             }
@@ -300,13 +301,6 @@ export default {
     handleAvatarSuccess(res, file){
       this.editForm.image = res.data
       this.imageUrl = '/common/download?name=' + res.data
-    },
-    getName(id, options){
-      for (let i = 0; i < options.length; i++) {
-        if (options[i].id === id) {
-          return options[i].name
-        }
-      }
     },
     // 按钮 - 添加口味
     addFlavour () {
