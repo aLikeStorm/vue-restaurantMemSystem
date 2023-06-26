@@ -19,14 +19,15 @@ const routes = [
       {path: '/', redirect:'personManage'},
       // 人员管理
       {path: 'personManage', name: 'personManage', component: () => import('../components/personManage/index')},
-      // 分类管理
-      {path: 'classManage', name: 'classManage', component: () => import('../components/classManage/index')},
+      // 餐饮店管理
+      {path: 'restManage', name: 'restManage', component: () => import('../components/restManage/index')},
       // 菜品管理
       {path: 'dishManage', name: 'dishManage', component: () => import('../components/dishManage/index')},
-      // 套餐管理
-      {path: 'setMealManage', name: 'setMealManage', component: () => import('../components/setMealManage/index')},
+      // 优惠卷管理
+      {path: 'couponManage', name: 'couponManage', component: () => import('../components/couponManage/index')},
       // 订单管理
       {path: 'orderManage', name: 'orderManage', component: () => import('../components/orderManage/index')},
+      {path: 'commentManage', name: 'commentManage', component: () => import('../components/commentManage/index')},
   ]}
 ]
 
@@ -36,11 +37,11 @@ const router = new VueRouter({
   routes
 })
 
-// 全局路由
+//全局路由
 router.beforeEach((to, from, next) => {
     if (to.path !== '/login') {
 
-        const userInfo = localStorage.getItem('userInfo')
+        const userInfo = localStorage.getItem('authorization')
         if (userInfo) {
             next()
         } else {

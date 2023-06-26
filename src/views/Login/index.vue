@@ -6,10 +6,10 @@
         <div class="login-box">
           <img src="./img/login-2.png"  alt="logo"/>
           <div class="user common">
-            <el-input class="input" placeholder="请输入用户名" prefix-icon="el-icon-user" v-model="username" clearable></el-input>
+            <el-input class="input" placeholder="请输入邮箱地址" prefix-icon="el-icon-user" v-model="loginFrom.email" clearable></el-input>
           </div>
           <div class="pwd common">
-            <el-input class="input" placeholder="请输入密码" prefix-icon="el-icon-lock" v-model="password" clearable type="password"></el-input>
+            <el-input class="input" placeholder="请输入密码" prefix-icon="el-icon-lock" v-model="loginFrom.password" clearable type="password"></el-input>
           </div>
           <el-button type="warning" round style="width: 90%" @click="login">登录</el-button>
         </div>
@@ -23,32 +23,44 @@ export default {
   name: "login",
   data(){
     return {
-      username: '',
-      password: '',
+      loginFrom:{
+        email:"",
+        password:""
+      }
     }
   },
   methods:{
+    isEmail(str) {
+      var reg = /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
+      return  reg.test(str);
+    },
     login(){
       // 用户名或密码为空
-      if (this.username === '' || this.password === '') {
+      if (this.isEmail(this.loginFrom.email)) {
         this.$message({
-          message: '请输入用户名或密码',
+          message: '邮箱格式错误',
           type: 'warning',
           center: 'true'
         });
         return
       }
-      this.$http.post('employee/login', {username: this.username, password: this.password}).then(res=>{
-        if(res.status === 200){
-          if(!res.data.data){
-            this.$message({
-              message: res.data.msg,
-              type: 'error',
-              center: 'true'
-            });
+      if (this.loginFrom.password == '') {
+        this.$message({
+          message: '密码不能为空',
+          type: 'warning',
+          center: 'true'
+        });
+      }
+      this.$http.post('user/login/admin', this.loginFrom).then(res=>{
+        if(!res.data.success){
+          this.$message({
+            message: res.data.errorMsg,
+            type: 'error',
+            center: 'true'
+          });
           } else {
-            let userInfo = JSON.stringify(res.data.data)
-            localStorage.setItem('userInfo', userInfo)
+            let token = res.data.data;
+            localStorage.setItem('authorization', token)
             this.$router.push('/homepage')
             this.$message({
               message: '登录成功',
@@ -56,14 +68,7 @@ export default {
               center: 'true'
             });
           }
-        } else {
-          this.$message({
-            message: '系统错误，联系管理员',
-            type: 'error',
-            center: 'true'
-          });
-        }
-      })
+        })
     }
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "ruiji_vue",
+  "name": "RestaurantMemSystem",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,6 +10,7 @@
     "axios": "^1.3.4",
     "core-js": "^3.8.3",
     "element-ui": "^2.15.13",
+    "portfinder": "^1.0.21",
     "vue": "^2.6.14",
     "vue-router": "^3.5.1"
   },

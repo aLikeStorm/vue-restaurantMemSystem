@@ -1,9 +1,9 @@
 <template>
   <div class="container">
     <el-card class="top-card">
-      <el-form ref="form" :model="searchForm" label-width="80px" :inline="true">
-        <el-form-item label="员工姓名">
-          <el-input v-model="searchForm.name" placeholder="请输入" size="small"></el-input>
+      <el-form ref="form" :model="searchInfo" label-width="80px" :inline="true">
+        <el-form-item label="用户查询">
+          <el-input v-model="searchInfo" placeholder="请输入用户名或邮箱" size="small"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button icon="el-icon-search" type="primary" @click="doSearch" size="small">查询</el-button>
@@ -12,24 +12,17 @@
       </el-form>
     </el-card>
     <el-card class="bottom-card">
-      <el-button v-if="userInfo.id === '1'" icon="el-icon-plus" type="primary" @click="doAdd" size="small">新增</el-button>
+      <el-button  icon="el-icon-plus" type="primary" @click="doAdd" size="small">新增</el-button>
       <div class="table_area">
         <el-table :data="tableData" stripe height="600" style="width: 100%" :header-cell-style="{'text-align':'center'}" :cell-style="{'text-align':'center'}" border>
-          <el-table-column prop="name" label="员工姓名"></el-table-column>
-          <el-table-column prop="username" label="账号"></el-table-column>
-          <el-table-column prop="phone" label="手机号"></el-table-column>
-          <el-table-column label="状态">
-            <template slot-scope="scope">
-              {{scope.row.status === 1 ? "正常" : "禁用"}}
-            </template>
-          </el-table-column>
+          <el-table-column prop="userId" label="用户id"></el-table-column>
+          <el-table-column prop="nickName" label="用户昵称"></el-table-column>
+          <el-table-column prop="email" label="邮箱地址"></el-table-column>
+          <el-table-column prop="userAddress" label="用户地址"></el-table-column>
           <el-table-column label="操作" width="200">
             <template slot-scope="scope">
               <el-button type="text" @click="doEdit(scope.row)">编辑</el-button>
-              <template v-if="userInfo.id === '1'">
-                <el-button type="text" v-if="scope.row.status === 0" @click="statusChange(scope.row)">启用</el-button>
-                <el-button type="text" v-if="scope.row.status === 1" @click="statusChange(scope.row)">禁用</el-button>
-              </template>
+              <el-button type="text" @click="doDelete (scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -48,40 +41,38 @@
       <el-form :model="editForm" ref="editForm" label-width="100px" class="demo-ruleForm">
         <table style="width: 80%;margin: 0 auto;border-collapse: collapse;">
           <tr>
-            <td class="td-left">员工姓名</td>
+            <td class="td-left">用户昵称</td>
             <td class=td-right>
-              <el-form-item prop="name" :rules="{ required: true, message: '请输入员工姓名', trigger: 'blur' }">
-                <el-input v-model="editForm.name" size="small" placeholder="请输入"></el-input>
+              <el-form-item prop="nickName" :rules="{ required: true, message: '请输入用户昵称', trigger: 'blur' }">
+                <el-input v-model="editForm.nickName" size="small" placeholder="请输入"></el-input>
               </el-form-item>
             </td>
-            <td class="td-left">账号</td>
+            <td class="td-left">邮箱</td>
             <td class=td-right>
-              <el-form-item prop="username" :rules="{ required: true, message: '请输入账号', trigger: 'blur' }">
-                <el-input v-model="editForm.username" size="small" placeholder="请输入"></el-input>
-              </el-form-item>
-            </td>
-          </tr>
-          <tr>
-            <td class="td-left">手机号</td>
-            <td class=td-right>
-              <el-form-item prop="phone" :rules="{ required: true, message: '请输入手机号', trigger: 'blur' }">
-                <el-input v-model="editForm.phone" size="small" placeholder="请输入"></el-input>
-              </el-form-item>
-            </td>
-            <td class="td-left">性别</td>
-            <td class=td-right>
-              <el-form-item prop="sex" :rules="{ required: true, message: '请选择性别', trigger: 'change' }">
-                <el-select v-model="editForm.sex" placeholder="请选择">
-                  <el-option v-for="item in sexOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                </el-select>
+              <el-form-item prop="email" :rules="{ required: true, message: '请输入邮箱地址', trigger: 'blur' }">
+                <el-input v-model="editForm.email" size="small" placeholder="请输入"></el-input>
               </el-form-item>
             </td>
           </tr>
           <tr>
-            <td class="td-left">身份证号</td>
+            <td class="td-left">密码</td>
+            <td class=td-right>
+              <el-form-item prop="password" :rules="{ required: true, message: '请输入密码', trigger: 'blur' }">
+                <el-input type="password" v-model="editForm.password" size="small" placeholder="请输入"></el-input>
+              </el-form-item>
+            </td>
+            <td class="td-left">确认密码</td>
+            <td class=td-right>
+              <el-form-item prop="password" :rules="{ required: true, message: '请确认密码', trigger: 'blur' }">
+                <el-input type="password" v-model="confirmPassword" size="small" placeholder="请输入"></el-input>
+              </el-form-item>
+            </td>
+          </tr>
+          <tr>
+            <td class="td-left">地址</td>
             <td class=td-right colspan="3">
-              <el-form-item prop="idNumber" :rules="{ required: true, message: '请输入身份证号', trigger: 'blur' }">
-                <el-input v-model="editForm.idNumber" size="small" placeholder="请输入"></el-input>
+              <el-form-item prop="userAddress" :rules="{ required: true, message: '请输入地址', trigger: 'blur' }">
+                <el-input v-model="editForm.userAddress" size="small" placeholder="请输入"></el-input>
               </el-form-item>
             </td>
           </tr>
@@ -100,19 +91,16 @@ export default {
   name: "personManage",
   data(){
     return {
-      searchForm: {},
+      searchInfo: '',
       tableData: [],
       total: 0,
       editDialog: false,
       title: '',
-      editForm: {},
-      sexOptions:[
-        {label: '男', value: '1'},
-        {label: '女', value: '0'}
-      ],
+      editForm: {userId:null,nickName:"",email:"",userAddress:"",password:""},
       currentPage: 1,
       pageSize: 10,
-      userInfo: JSON.parse(localStorage.getItem('userInfo'))
+      user: localStorage.getItem("user"),
+      confirmPassword:""
     }
   },
   created() {
@@ -120,16 +108,29 @@ export default {
   },
   methods:{
     doSearch(){
-      this.$http.get(`/employee/getEmployeeList?name=${this.searchForm.name ? this.searchForm.name : ''}&currentPage=${this.currentPage}&pageSize=${this.pageSize}`).then(res => {
-        if (res.status === 200) {
-          this.tableData = res.data.data.records
+      let url;
+      if (this.searchInfo === null || this.searchInfo === '') {
+        url = '/user/getUserList/默认/' + this.currentPage + '/' + this.pageSize
+      }else {
+        url = '/user/getUserList/'+this.searchInfo+'/' + this.currentPage + '/' + this.pageSize
+      }
+
+      this.$http.get(url).then(res => {
+        if (res.data.success) {
+          this.tableData = res.data.data
           this.total = res.data.data.total
+        } else {
+          this.$message({
+            message: res.data.errorMsg,
+            type: 'error',
+            center: 'true'
+          });
         }
       })
     },
     doClear(){
-      this.searchForm = {}
-      this.doSearch()
+      this.confirmPassword = "";
+      this.tableData = null;
     },
     doAdd(){
       this.title = '新增'
@@ -144,32 +145,18 @@ export default {
       this.editDialog = true
       this.editForm = Object.assign({}, row)
     },
-    statusChange(row){
-      if (row.status === 1){
-        row.status = 0
-      } else {
-        row.status = 1
-      }
-      this.$http.post('/employee/update', row).then(res => {
-        if(res.status === 200){
-          if (res.data.code === 1){
-            this.$message({
-              message: res.data.data,
-              type: 'success',
-              center: 'true'
-            });
-            this.editDialog = false
-            this.doSearch()
-          } else {
-            this.$message({
-              message: res.data.msg,
-              type: 'error',
-              center: 'true'
-            });
-          }
+    doDelete(row) {
+      this.$http.get("/user/delete/"+row.userId).then(res=>{
+        if(res.data.success){
+          this.$message({
+            message: res.data.data,
+            type: 'success',
+            center: 'true'
+          });
+          this.doSearch();
         } else {
           this.$message({
-            message: '系统错误，联系管理员',
+            message: res.data.errorMsg,
             type: 'error',
             center: 'true'
           });
@@ -178,42 +165,47 @@ export default {
     },
     save(){
       this.$refs.editForm.validate((valid) => {
+        if (this.editForm.password !== this.confirmPassword) {
+          this.$message({
+            message: "密码不一致",
+            type: 'success',
+            center: 'true'
+          });
+          this.confirmPassword = "";
+          return;
+        }
         if (valid) {
           let url = ''
           if (this.title === '新增') {
-            url = '/employee/register'
+            url = '/user/register'
           } else {
-            url = '/employee/update'
+            url = '/user/update'
           }
           this.$http.post(url, this.editForm).then(res => {
-            if(res.status === 200){
-              if (res.data.code === 1){
+            if(res.data.success){
+              this.$message({
+                message: res.data.data,
+                type: 'success',
+                center: 'true'
+              });
+              this.confirmPassword = "";
+              this.editForm = {};
+              this.editDialog = false;
+              this.doSearch();
+            } else {
                 this.$message({
-                  message: res.data.data,
-                  type: 'success',
-                  center: 'true'
-                });
-                this.editDialog = false
-                this.doSearch()
-              } else {
-                this.$message({
-                  message: res.data.msg,
+                  message: res.data.errorMsg,
                   type: 'error',
                   center: 'true'
                 });
-              }
-            } else {
-              this.$message({
-                message: '系统错误，联系管理员',
-                type: 'error',
-                center: 'true'
-              });
             }
           })
         }
       });
     },
     cancel(){
+      this.confirmPassword = "";
+      this.editForm = {};
       this.editDialog = false
     },
     handleSizeChange(val) {

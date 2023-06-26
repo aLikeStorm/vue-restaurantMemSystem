@@ -11,94 +11,84 @@
         </el-form-item>
       </el-form>
     </el-card>
-      <el-card class="bottom-card">
-        <el-button icon="el-icon-plus" type="primary" @click="doAdd" size="small">新增</el-button>
-        <div class="table_area">
-          <el-table :data="tableData" stripe height="600" style="width: 100%" :header-cell-style="{'text-align':'center'}" :cell-style="{'text-align':'center'}" border>
-            <el-table-column prop="foodId" label="菜品ID"></el-table-column>
-            <el-table-column prop="ImageList[1]" label="菜品图片"></el-table-column>
-            <el-table-column prop="foodName" label="菜品名"></el-table-column>
-            <el-table-column prop="foodDescription" label="菜品描述"></el-table-column>
-            <el-table-column prop="foodPrice" label="菜品价格(元)"></el-table-column>
-            <el-table-column prop="createTime" label="创建时间"></el-table-column>
-            <el-table-column label="操作" width="200">
-              <template slot-scope="scope">
-                <el-button type="text" @click="doEdit(scope.row)" style="width: 50px">编辑</el-button>
-                <el-button type="text" @click="doDelete(scope.row)" style="width: 50px">删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-        <el-pagination
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="currentPage"
-            :page-sizes="[5, 10, 15, 20]"
-            :page-size="pageSize"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total">
-        </el-pagination>
-      </el-card>
+    <el-card class="bottom-card">
+      <el-button icon="el-icon-plus" type="primary" @click="doAdd" size="small">新增</el-button>
+      <div class="table_area">
+        <el-table :data="tableData" stripe height="600" style="width: 100%" :header-cell-style="{'text-align':'center'}" :cell-style="{'text-align':'center'}" border>
+          <el-table-column prop="couponId" label="优惠卷ID"></el-table-column>
+          <el-table-column prop="couRestId" label="餐饮店ID"></el-table-column>
+          <el-table-column prop="couponName" label="优惠卷名"></el-table-column>
+          <el-table-column prop="couponAmount" label="优惠金额(元)"></el-table-column>
+          <el-table-column prop="couponNum" label="优惠卷数量(张)"></el-table-column>
+          <el-table-column prop="couponRemainingNum" label="剩余优惠卷数量(张)"></el-table-column>
+          <el-table-column prop="beginTime" label="活动开始时间"></el-table-column>
+          <el-table-column prop="endTime" label="活动截止时间"></el-table-column>
+          <el-table-column prop="createTime" label="优惠卷有效时间"></el-table-column>
+
+          <el-table-column label="操作" width="200">
+            <template slot-scope="scope">
+              <el-button type="text" @click="doEdit(scope.row)" style="width: 50px">编辑</el-button>
+              <el-button type="text" @click="doDelete(scope.row)" style="width: 50px">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[5, 10, 15, 20]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total">
+      </el-pagination>
+    </el-card>
     <el-dialog :title="title" :visible.sync="editDialog" width="80%">
       <el-form :model="editForm" ref="editForm" label-width="100px" class="demo-ruleForm">
         <table style="width: 80%;margin: 0 auto;border-collapse: collapse;">
           <tr>
             <td class="td-left">名称</td>
             <td class=td-right>
-              <el-form-item prop="foodName" :rules="{ required: true, message: '请输入食物名称', trigger: 'blur' }">
-                <el-input v-model="editForm.foodName" size="small" placeholder="请输入"></el-input>
+              <el-form-item prop="couponName" :rules="{ required: true, message: '请输入食物名称', trigger: 'blur' }">
+                <el-input v-model="editForm.couponName" size="small" placeholder="请输入"></el-input>
               </el-form-item>
             </td>
-            <td class="td-left">价格(元)</td>
+            <td class="td-left">每张优惠卷金额(元)</td>
             <td class=td-right>
-              <el-form-item prop="foodPrice" :rules="{ required: true, message: '请输入价格名称', trigger: 'blur' }">
-                <el-input v-model="editForm.foodPrice" size="small" placeholder="请输入"></el-input>
+              <el-form-item prop="couponAmount" :rules="{ required: true, message: '请输入价格名称', trigger: 'blur' }">
+                <el-input v-model="editForm.couponAmount" size="small" placeholder="请输入"></el-input>
               </el-form-item>
             </td>
           </tr>
           <tr>
-            <td class="td-left">描述</td>
+            <td class="td-left">优惠卷数量</td>
             <td class=td-right>
-              <el-form-item prop="foodDescription" :rules="{ required: true, message: '请输入', trigger: 'blur' }">
-                <el-input type="textarea" v-model="editForm.foodDescription" size="small" placeholder="请输入"></el-input>
+              <el-form-item prop="couponNum" :rules="{ required: true, message: '请输入价格名称', trigger: 'blur' }">
+                <el-input v-model="editForm.couponNum" size="small" placeholder="请输入"></el-input>
               </el-form-item>
             </td>
           </tr>
           <tr>
-            <td class="td-left">店铺图片</td>
-            <td>
-              <!-- 图片上传(支持多图) -->
-              <div>
-                <main-head> </main-head>
-                <main-content>
-                  <el-row :gutter="20">
-                    <el-col :span="4">
-                      <span style="font-size: 10px">宝贝卡片背景图</span>
-                      <!--                      <el-image :src="src" />-->
-                    </el-col>
-                    <el-col :span="12">
-                      <el-upload
-                          class="upload-demo"
-                          ref="upload"
-                          action="string"
-                          accept="image/jpeg,image/png,image/jpg"
-                          list-type="picture-card"
-                          :before-upload="onBeforeUploadImage"
-                          :on-change="fileChange"
-                          :on-remove="removeFile"
-                          :file-list="fileList"
-                          :auto-upload="false"
-                      >
-                        <el-button size="small" type="primary">点击上传</el-button>
-                        <div slot="tip" class="el-upload__tip">
-                          只能上传jpg/jpeg/png文件，且不超过500kb
-                        </div>
-                      </el-upload>
-
-                      <el-button type="primary" plain @click="sumbit()">上传</el-button>
-                    </el-col>
-                  </el-row>
-                </main-content>
+            <td class="td-left">活动开启时间</td>
+            <td class=td-right>
+              <div class="block">
+                <span class="demonstration"></span>
+                <el-date-picker
+                    v-model="editForm.beginTime"
+                    type="datetime"
+                    placeholder="选择日期时间">
+                </el-date-picker>
+              </div>
+            </td>
+            <td class="td-left">活动结束时间</td>
+            <td class=td-right>
+              <div class="block">
+                <span class="demonstration"></span>
+                <el-date-picker
+                    v-model="editForm.endTime"
+                    type="datetime"
+                    placeholder="选择日期时间">
+                </el-date-picker>
               </div>
             </td>
           </tr>
@@ -116,14 +106,15 @@
 
 <script>
 export default {
-  name: "dishManage",
+  name: "couponManage",
   data(){
     return {
       searchInfo: "",
       tableData: [
         {
-          foodId: null, foodName: "null", foodDescription: "null",
-          foodPrice: "", createTime: "null", imageList: []
+          couponId: null, couRestId: "null", couponName: "null",
+          couponAmount: "",couponNum:"", beginTime:"",createTime: "null",endTime:"",
+          couponRemainingNum:""
         }],
       total: 0,
       currentPage: 1,
@@ -131,84 +122,34 @@ export default {
       title: '',
       editDialog: false,
       editForm: {
-        createTime: null, foodDescription: null, foodFormRest: null,
-        foodId: null, foodName: null, foodPrice: null, imageList: null
+        couponId: null, couRestId: "null", couponName: "null",
+        couponAmount: "",couponNum:"", beginTime:"",endTime:""
       }
     }
   },
   methods:{
-    //上传之前的钩子,自定义上传后，该钩子失效
-    onBeforeUploadImage(file) {},
-    //文件改变钩子
-    fileChange(file, fileList) {
-      if (this.fileArr.length > 4) {
-        //写的是多图上传，但是这个模块只用到了单图，所以加个判断，多图的可以留着后面用
-        this.$message.error("餐饮点信息最多只能上传四张图片");
-        fileList = fileList.pop();
-        return;
-      }
-      const isIMAGE = file.type === "image/jpeg" || "image/jpg" || "image/png";
-      const isLt1M = file.size / 1024 / 1024/10 < 1;
-      if (!isIMAGE) {
-        this.$message.error("上传文件只能是图片格式!");
-      }
-      if (!isLt1M) {
-        this.$message.error("上传文件大小不能超过 10MB!");
-      }
-      //将文件存到数组中
-      this.fileArr.push(file.raw);
-    },
-    //提交事件
-    sumbit() {
-      const formData = new FormData();
-      //这一步要特别注意！！！如果直接formData.append("files",this.fileArr)，那么后端将会收不到参数，一定一定要遍历这个数组然后一个个重新append formdata中
-      for (var i = 0; i < this.fileArr.length; i++) {
-        formData.append("images",this.fileArr[i]);
-      }
-      this.$http.post("/file/uploadImages",formData).then(res=>{
-        if (res.data.success){
-          this.editForm.imageList = res.data.data;
-          console.log(this.editForm.imageList)
-        } else {
-          this.$message.error(res.data.errorMsg);
-        }
-
-      })
-
-    },
-    //移除文件的钩子
-    removeFile(file, fileList) {
-      for (var i = 0; i < this.fileArr.length; i++) {
-        //如果传入的文件uid和即将提交的图片数组中的某个uid一致，那么移除此图片
-        if (file.raw.uid == this.fileArr[i].uid) {
-          this.fileArr.splice(this.fileArr[i], 1);
-        }
-      }
-    },
     doSearch(){
       //查询类型 1代表以店铺id查询，否则代表以店铺名模糊查询
-      if (this.searchInfo == "") {
-        this.searchInfo = 2;
-      }
       let type = 1;
       if (Number(this.searchInfo).toString() == 'NaN') {
         type = 2;
       }
-      let url = '/food/getFoodList/'+type
+      let url = '/coupon/getRestCoupon/'+type
           +'/' +this.searchInfo
           +'/'+this.currentPage
           +'/'+this.pageSize;
       this.$http.get(url).then(res => {
         if (res.data.success) {
-            this.tableData = res.data.data;
-            this.total = res.data.total;
-          } else {
-            this.$message({
-              message: res.data.errorMsg,
-              type: 'error',
-              center: 'true'
-            });
-          }
+          console.log(res.data)
+          this.tableData = res.data.data;
+          this.total = res.data.total;
+        } else {
+          this.$message({
+            message: res.data.errorMsg,
+            type: 'error',
+            center: 'true'
+          });
+        }
       })
     },
     doClear(){
@@ -218,7 +159,7 @@ export default {
       this.title = '新增'
       this.editDialog = true
       this.editForm = {};
-      this.editForm.foodFormRest = this.tableData[0].foodFormRest;
+      this.editForm.couRestId = this.tableData[0].couRestId;
     },
     doEdit(row){
       this.title = '更新'
@@ -226,21 +167,30 @@ export default {
       this.editForm = Object.assign({}, row)
     },
     doDelete(row) {
-      this.$http.get("/food/delete/"+row.foodId).then(res => {
-        this.$message({
-          message: res.data.data,
-          type: 'success',
-          center: 'true'
-        });
+      this.$http.get("/coupon/delete/"+row.couponId).then(res => {
+        if (res.data.success){
+          this.$message({
+            message: res.data.data,
+            type: 'success',
+            center: 'true'
+          });
+        } else {
+          this.$message({
+            message: res.data.errorMsg,
+            type: 'error',
+            center: 'true'
+          });
+        }
+
         this.doSearch();
       })
     },
     save(){
       let url = ''
       if (this.title === '新增') {
-        url = '/food/add'
+        url = '/coupon/add'
       } else {
-        url = '/food/update'
+        url = '/coupon/update'
       }
       this.$http.post(url, this.editForm).then(res => {
         this.$message({
